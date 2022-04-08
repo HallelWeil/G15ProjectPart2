@@ -1,0 +1,9 @@
+CREATE TABLE `zelisystem`.`orders` (
+  `orderNumber` INT NOT NULL,
+  `price` DOUBLE NULL,
+  `greetingCard` VARCHAR(200) NULL,
+  `color` VARCHAR(45) NULL,
+  `shop` VARCHAR(45) NULL,
+  `date` DATE NULL,
+  `orderDate` DATETIME NULL,
+  PRIMARY KEY (`orderNumber`));
