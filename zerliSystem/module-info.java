@@ -1,0 +1,3 @@
+module zerliServer {
+	requires ocsf;
+}
