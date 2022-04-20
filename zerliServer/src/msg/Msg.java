@@ -14,5 +14,5 @@ public class Msg implements Serializable{
 	
 	public String toString() {
 		return type;	
-	}
+	}	
 }

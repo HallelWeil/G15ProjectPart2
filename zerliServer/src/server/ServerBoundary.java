@@ -37,14 +37,14 @@ public class ServerBoundary {
 	 * @param DBuser     -> the database username
 	 * @param DBpassword -> the database password
 	 */
-	public void connect(int ServerPort, String DBname, String DBuser, String DBpassword) {
+	public boolean connect(int ServerPort, String DBname, String DBuser, String DBpassword) {
 		try {// try connecting to db
 			dbController = new DBController(DBname, DBuser, DBpassword);
 			setStatus("Connected to database successfully");// on success
 		} catch (Exception ex) {
 			System.out.println("ERROR - Could not connect to database!");
 			setStatus("ERROR - Could not connect to database!");// on failure
-			return;
+			return false;
 		}
 		server = new ServerController(ServerPort, dbController, this);// create the server
 		try {// try activate the server
@@ -52,9 +52,10 @@ public class ServerBoundary {
 		} catch (Exception ex) {
 			System.out.println("ERROR - Could not listen for clients!");
 			setStatus("Server not active");
-			return;
+			return false;
 		}
 		setStatus("Server active");
+		return true;
 	}
 
 	/**

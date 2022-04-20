@@ -141,7 +141,7 @@ public class MsgController {
 	 * @param newOrder
 	 * @return the msg
 	 */
-	public Msg createSendMsg(Order newOrder) {
+	public static Msg createSendMsg(Order newOrder) {
 		Msg msg = new Msg();
 		msg.type = "Send order";
 		msg.data = newOrder;
@@ -154,7 +154,7 @@ public class MsgController {
 	 * @param orderID
 	 * @return the msg
 	 */
-	public Msg createGetOrderMsg(int orderID) {
+	public static Msg createGetOrderMsg(int orderID) {
 		Msg msg = new Msg();
 		msg.type = "get order request";
 		msg.data = orderID;

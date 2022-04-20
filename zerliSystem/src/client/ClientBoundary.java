@@ -25,7 +25,7 @@ public class ClientBoundary {
 	}
 
 	public Order RequestOrder(int Order) {
-		msg = zerliClientController.CreateMsg.createGetOrderMsg(Order);
+		msg = MsgController.createGetOrderMsg(Order);
 		System.out.println("msg created " + msg);
 		client.handleMessageFromClientUI((Object) msg);
 		System.out.println("msg sent");
@@ -36,12 +36,19 @@ public class ClientBoundary {
 		}
 	}
 
-	public void saveOrder(Order old, Order New) {
-		msg = zerliClientController.CreateMsg.createSaveMsg(old, New);
+	public boolean saveOrder(Order old, Order New) {
+		msg = MsgController.createSaveMsg(old, New);
 		client.handleMessageFromClientUI(msg);
+		if (zerliClientController.CreateMsg.getType().equals("completed"))
+		{
+			return true;
+		}
+		else {
+			return false;
+		}
 
 	}
-
+/*
 	public int CreateOrder(Order order) throws IOException {
 		msg = zerliClientController.CreateMsg.createSendMsg(order);
 		client.handleMessageFromClientUI(msg);
@@ -52,5 +59,5 @@ public class ClientBoundary {
 		}
 
 	}
-
+*/
 }
