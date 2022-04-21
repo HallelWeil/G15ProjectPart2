@@ -1,8 +1,16 @@
 package server;
 
 import java.util.ArrayList;
-
+import database.DBController;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import msg.Msg;
+import msg.MsgController;
 import ocsf.server.ConnectionToClient;
+import serverGUI.ClientsData;
+import serverGUI.ServerGuiController;
 
 /**
  * Boundary for the prototype server, create the server controller, manage
@@ -14,19 +22,20 @@ import ocsf.server.ConnectionToClient;
  */
 public class ServerBoundary {
 
-	public boolean updateTable;
-	public boolean updateLog;
-	public ServerController server;
-	private StringBuilder status;
+	private ServerController server;
+	private ArrayList<String> status;
 	private DBController dbController;
+	private ServerGuiController guiController;
+	public ObservableList<ClientsData> data;
+	private int clientsCount = 0;
 
-	public ServerBoundary() {
+	public ServerBoundary(ServerGuiController guiController) {
 		super();
-		this.updateTable = false;
-		this.updateLog = false;
+		this.guiController = guiController;
 		server = null;
-		status = new StringBuilder();
-		dbController = null;
+		status = new ArrayList<String>();
+		dbController = new DBController();
+		data = FXCollections.observableArrayList();
 	}
 
 	/**
@@ -39,18 +48,18 @@ public class ServerBoundary {
 	 */
 	public boolean connect(int ServerPort, String DBname, String DBuser, String DBpassword) {
 		try {// try connecting to db
-			dbController = new DBController(DBname, DBuser, DBpassword);
+			dbController.connectToDB(DBname, DBuser, DBpassword);
 			setStatus("Connected to database successfully");// on success
 		} catch (Exception ex) {
 			System.out.println("ERROR - Could not connect to database!");
-			setStatus("ERROR - Could not connect to database!");// on failure
+			setStatus(ex.getMessage());// on failure
 			return false;
 		}
 		server = new ServerController(ServerPort, dbController, this);// create the server
 		try {// try activate the server
 			server.listen(); // Start listening for connections
 		} catch (Exception ex) {
-			System.out.println("ERROR - Could not listen for clients!");
+			setStatus("ERROR - Could not listen for clients!");
 			setStatus("Server not active");
 			return false;
 		}
@@ -62,45 +71,39 @@ public class ServerBoundary {
 	 * Disconnect from the server and the database
 	 */
 	public void disconnect() {
+		// all the clients connections are not active
+		for (ClientsData temp : data) {
+			temp.status.set("NotActive");
+		}
+		// stop the server
 		server.stopListening();
 		try {
 			server.close();
 		} catch (Exception ex) {
 		}
-		dbController = null;
+		dbController.disConnectFromDB();
 		server = null;
 		setStatus("Server not active");
+
 	}
 
 	/**
-	 * get the active clients matrix in the following format: number|clientIp|status
+	 * update the clients table using the client and the status
 	 * 
-	 * @return matrix of strings for the table
 	 */
-	public String[][] getClientsTable()// return String
+	public void updateClientsTable(String ipAdress, String status, String host, String name)// return String
 	{
-		updateTable = false;
-		ArrayList<String> clients = server.getActiveClients();
-		String[][] stringMatrix = new String[clients.size()][3];
-		for (int i = 0; i < clients.size(); i++) {
-			stringMatrix[i][0] = "" + (i + 1);
-			stringMatrix[i][1] = clients.get(i);
-			stringMatrix[i][2] = "Active";
+		String tempNumber = "";
+		ClientsData tempClientData = new ClientsData(tempNumber, ipAdress, status, host, name);
+		if (data.contains(tempClientData)) {
+			tempNumber = data.get(data.indexOf(tempClientData)).getNumber();
+			data.remove(tempClientData);
+		} else {
+			tempNumber += clientsCount;
+			clientsCount++;
 		}
-		return stringMatrix;
-	}
-
-	/**
-	 * return the string for the next line/lines in status log
-	 * 
-	 * @return string
-	 */
-	public String getStatus()// return string, next line in log
-	{
-		updateLog = false;
-		String s = status.toString();
-		status = new StringBuilder();// empty the log
-		return s;// return the log
+		tempClientData.setNumber(tempNumber);
+		data.add(tempClientData);
 	}
 
 	/**
@@ -109,7 +112,29 @@ public class ServerBoundary {
 	 * @param s -> the next line in the status log
 	 */
 	public void setStatus(String s) {
-		status.append("\n\n" + s);
-		updateLog = true;
+		status.add(s);
+		guiController.updateConsole(s);
+	}
+
+	/**
+	 * return the string for the next line/lines in status log
+	 * 
+	 * @return string
+	 */
+	public ArrayList<String> getStatus()// return string, next line in log
+	{
+		ArrayList<String> s = status;
+		status = new ArrayList<String>();// empty the log
+		return s;// return the log
+	}
+
+	public void quit() {
+		Msg msg = MsgController.createExitMsg();
+		try {
+			server.sendToAllClients(msg);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		disconnect();
 	}
 }

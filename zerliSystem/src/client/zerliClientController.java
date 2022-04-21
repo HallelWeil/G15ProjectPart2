@@ -8,11 +8,13 @@ import ocsf.client.AbstractClient;
 public class zerliClientController extends AbstractClient {
 	public static boolean awaitResponse = false;
 	public static MsgController CreateMsg;
+	ClientBoundary clientBoundary;
 
-	public zerliClientController(String host, int port) throws IOException {
+	public zerliClientController(String host, int port, ClientBoundary clientBoundary) throws IOException {
 		super(host, port); // Call the superclass constructor
 		CreateMsg = new MsgController();
 		openConnection();
+		this.clientBoundary = clientBoundary;
 	}
 
 	@Override
@@ -23,6 +25,9 @@ public class zerliClientController extends AbstractClient {
 			CastMsg = (Msg) msg;
 			CreateMsg.msgParser(CastMsg);
 			awaitResponse = false;
+			if (CreateMsg.getType().equals("exit")) {
+				clientBoundary.serverDisconnect();
+			}
 		}
 
 	}
@@ -50,8 +55,8 @@ public class zerliClientController extends AbstractClient {
 		try {
 			closeConnection();
 		} catch (IOException e) {
+			System.out.println(e.getMessage());
 		}
-		System.exit(0);
 	}
 
 	public void display(String message) {

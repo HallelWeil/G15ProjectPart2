@@ -7,11 +7,11 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 
 public class ServerUI extends Application {
+	private ServerGuiController controller;
 
 	@Override
 	public void start(Stage stage) {
 		AnchorPane root;
-		ServerGuiController controller;
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/serverGUI/ServerGUI.fxml"));
 			root = loader.load();
@@ -20,10 +20,16 @@ public class ServerUI extends Application {
 			Scene scene = new Scene(root);
 			stage.setScene(scene);
 			stage.show();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+	}
+
+	@Override
+	public void stop() {
+		controller.getBoundary().quit();
+		System.out.println("Exit server, goodbye");
+		System.exit(1);
 	}
 
 	public static void main(String[] args) {

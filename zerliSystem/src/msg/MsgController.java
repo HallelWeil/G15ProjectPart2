@@ -73,6 +73,7 @@ public class MsgController {
 			order = (Order) arr.get(1);
 			orderNum = order.getOrderID();
 			break;
+		case "exit":
 		case "error":
 		case "completed":
 			break;
@@ -158,6 +159,15 @@ public class MsgController {
 		Msg msg = new Msg();
 		msg.type = "get order request";
 		msg.data = orderID;
+		return msg;
+	}
+
+	/**
+	 * 
+	 */
+	public static Msg createExitMsg() {
+		Msg msg = new Msg();
+		msg.type = "exit";
 		return msg;
 	}
 }

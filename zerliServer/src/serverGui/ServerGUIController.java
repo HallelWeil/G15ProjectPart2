@@ -1,24 +1,50 @@
 package serverGUI;
 
-import java.sql.SQLException;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import server.ServerBoundary;
+
 /**
  * the server gui controller
- * 
  *
+ * 
  */
 public class ServerGuiController {
+	/**
+	 * the server boundary, use for the server actions and methods
+	 */
 	private ServerBoundary server;
 
 	public ServerGuiController() {
-		this.server = new ServerBoundary();
+		this.server = new ServerBoundary(this);
 	}
+
+	public ServerBoundary getBoundary() {
+		return server;
+	}
+
+	@FXML
+	private TableView<ClientsData> connectionsTable;
+	@FXML
+	private TableColumn<ClientsData, ?> hostCol;
+
+	@FXML
+	private TableColumn<ClientsData, ?> ipCol;
+	@FXML
+	private TableColumn<ClientsData, ?> numberCol;
+
+	@FXML
+	private TableColumn<ClientsData, ?> statusCol;
 
 	@FXML
 	private Button disconnectButton;
@@ -44,47 +70,102 @@ public class ServerGuiController {
 	@FXML
 	private TextArea console;
 
+	/**
+	 * Connecting the server + database
+	 * 
+	 * @param event
+	 */
 	@FXML
-	void connect(ActionEvent event) throws Exception, SQLException {
+	void connect(ActionEvent event) {
+		// local variables
 		int ServerPort;
-		String ip,DBname,DBuser,DBpassword;
-		//get the fields
+		@SuppressWarnings("unused")
+		String ip, DBname, DBuser, DBpassword;
+		// get the fields
 		try {
 			ServerPort = Integer.parseInt(portField.getText());
-		}catch (Exception e) {
-			 console.appendText("Port must be a number" + "\n");
-			 return;
+		} catch (Exception e) {
+			updateConsole("Port must be a number");
+			return;
 		}
+		ip = ipField.getText();// not used
 		DBname = dbNameField.getText();
 		DBuser = dbUserField.getText();
 		DBpassword = dbPassField.getText();
-		//connect the server
-		 try {
-			 if(server.connect(ServerPort, DBname, DBuser, DBpassword))
-			 {
-				 console.appendText("SQL connection succeed" + "\n");
-					connectButton.setDisable(true);
-					disconnectButton.setDisable(false);
-			 }
-			 else {
-				 console.appendText("Couldn't connect DB" + "\n");
+		// connect the server
+		try {
+			if (server.connect(ServerPort, DBname, DBuser, DBpassword)) {
+				updateConsole("server connection succeed");
+				connectButton.setDisable(true);
+				disconnectButton.setDisable(false);
+			} else {
+				updateConsole("Couldn't connect server");
 			}
-		 }catch (Exception e) {
+		} catch (Exception e) {
 			// TODO: handle exception
 		}
+		// init the connection table(empty for now)
+		initConnectionTable();
 	}
 
+	/**
+	 * Disconnecting the server + database
+	 * 
+	 * @param event
+	 */
 	@FXML
-	void disconnect(ActionEvent event) throws Exception {
+	void disconnect(ActionEvent event) {
 		try {
 			server.disconnect();
 			connectButton.setDisable(false);
 			disconnectButton.setDisable(true);
-			console.appendText("Connection is closed");
+			updateConsole("Connection is closed");
 		} catch (Exception e) {
-			console.appendText("couldn't close");
+			updateConsole("couldn't close");
 			// e.printStackTrace();
 		}
 		return;
 	}
+
+	/**
+	 * Init the clients connections table
+	 */
+	@SuppressWarnings("unchecked")
+	public void initConnectionTable() {
+		// connectionsTable.
+		ObservableList<ClientsData> data = server.data;
+		// add listener to the table
+		data.addListener(new ListChangeListener<ClientsData>() {
+
+			@Override
+			public void onChanged(Change c) {
+				updateConnectionTable();
+
+			}
+		});
+		numberCol.setCellValueFactory(new PropertyValueFactory<>("number"));
+		ipCol.setCellValueFactory(new PropertyValueFactory<>("ipAddress"));
+		statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
+		hostCol.setCellValueFactory(new PropertyValueFactory<>("host"));
+
+		// Adding data to the table
+		connectionsTable.setItems(data);
+		connectionsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+	}
+
+	public void updateConnectionTable() {
+		// refresh the table
+		connectionsTable.refresh();
+	}
+
+	/**
+	 * Update the console, add a line to the to console
+	 * 
+	 * @param s -> the added line
+	 */
+	public void updateConsole(String s) {
+		console.appendText(s + "\n");
+	}
+
 }

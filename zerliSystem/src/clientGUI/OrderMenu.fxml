@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="550.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="clientGUI.OrderGuiController">
    <children>
@@ -37,6 +38,11 @@
                               </Pane>
                               <Pane prefHeight="200.0" prefWidth="200.0">
                                  <children>
+                                    <Label text="Order time(hh:mm):" />
+                                 </children>
+                              </Pane>
+                              <Pane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
                                     <Label text="Price:" />
                                  </children>
                               </Pane>
@@ -48,6 +54,11 @@
                               <Pane prefHeight="200.0" prefWidth="200.0">
                                  <children>
                                     <Label text="Arrival Date(dd/mm/yyyy):" />
+                                 </children>
+                              </Pane>
+                              <Pane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <Label text="Arrival time(hh:mm):" />
                                  </children>
                               </Pane>
                               <Pane prefHeight="200.0" prefWidth="200.0">
@@ -98,6 +109,28 @@
                               </Pane>
                               <Pane prefHeight="200.0" prefWidth="200.0">
                                  <children>
+                                    <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                       <children>
+                                          <TextField fx:id="orderTimeHour" editable="false" prefHeight="25.0" prefWidth="30.0">
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </TextField>
+                                          <Label text=":">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="orderTimeMin" editable="false" prefHeight="25.0" prefWidth="32.0" />
+                                       </children>
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                    </HBox>
+                                 </children>
+                              </Pane>
+                              <Pane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
                                     <TextField fx:id="orderPrice" />
                                  </children>
                               </Pane>
@@ -117,6 +150,28 @@
                                           </TextField>
                                           <TextField fx:id="arrivalDateMonth" editable="false" prefHeight="25.0" prefWidth="30.0" />
                                           <TextField fx:id="arrivalDateYear" editable="false" prefHeight="25.0" prefWidth="68.0" />
+                                       </children>
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                    </HBox>
+                                 </children>
+                              </Pane>
+                              <Pane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                       <children>
+                                          <TextField fx:id="arrivalTimeHour" editable="false" prefHeight="25.0" prefWidth="30.0">
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </TextField>
+                                          <Label text=":">
+                                             <font>
+                                                <Font size="18.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="arrivalTimeMin" editable="false" prefHeight="25.0" prefWidth="32.0" />
                                        </children>
                                        <opaqueInsets>
                                           <Insets />

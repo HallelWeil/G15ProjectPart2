@@ -15,7 +15,7 @@ public class ClientBoundary {
 	public ClientBoundary(String host, int port) {
 		msg = new Msg();
 		try {
-			client = new zerliClientController(host, port);
+			client = new zerliClientController(host, port,this);
 			System.out.println("connected to server");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -26,9 +26,7 @@ public class ClientBoundary {
 
 	public Order RequestOrder(int Order) {
 		msg = MsgController.createGetOrderMsg(Order);
-		System.out.println("msg created " + msg);
 		client.handleMessageFromClientUI((Object) msg);
-		System.out.println("msg sent");
 		if (zerliClientController.CreateMsg.getType().equals("Send order"))
 			return zerliClientController.CreateMsg.getOrder();
 		else {
@@ -39,25 +37,30 @@ public class ClientBoundary {
 	public boolean saveOrder(Order old, Order New) {
 		msg = MsgController.createSaveMsg(old, New);
 		client.handleMessageFromClientUI(msg);
-		if (zerliClientController.CreateMsg.getType().equals("completed"))
-		{
+		if (zerliClientController.CreateMsg.getType().equals("completed")) {
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 
 	}
-/*
-	public int CreateOrder(Order order) throws IOException {
-		msg = zerliClientController.CreateMsg.createSendMsg(order);
-		client.handleMessageFromClientUI(msg);
-		if (zerliClientController.CreateMsg.getType() == "get order request")
-			return zerliClientController.CreateMsg.getOrderNum();
-		else {
-			return -1;
-		}
 
+	public void serverDisconnect() {
+	     System.out.println("Server disconnected");
+			System.exit(0);
 	}
-*/
+	public void quit() {
+		msg = MsgController.createExitMsg();
+		client.handleMessageFromClientUI(msg);
+		client.quit();
+	}
+	/*
+	 * public int CreateOrder(Order order) throws IOException { msg =
+	 * zerliClientController.CreateMsg.createSendMsg(order);
+	 * client.handleMessageFromClientUI(msg); if
+	 * (zerliClientController.CreateMsg.getType() == "get order request") return
+	 * zerliClientController.CreateMsg.getOrderNum(); else { return -1; }
+	 * 
+	 * }
+	 */
 }
