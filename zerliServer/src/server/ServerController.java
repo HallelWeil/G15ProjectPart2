@@ -29,6 +29,11 @@ public class ServerController extends AbstractServer {
 	 */
 	private MsgController msgController;
 
+	/**
+	 * the server ip address
+	 */
+	private String hostName;
+
 	// Class Constructor *************************************************
 	/**
 	 * Constructs an instance of the server controller.
@@ -42,6 +47,7 @@ public class ServerController extends AbstractServer {
 		this.dbController = dbController;
 		this.serverBoundary = sb;
 		msgController = new MsgController();
+		hostName = "Server";
 	}
 
 	/**
@@ -98,7 +104,10 @@ public class ServerController extends AbstractServer {
 	 */
 	@Override
 	public void clientConnected(ConnectionToClient client) {
-		serverBoundary.updateClientsTable(client.toString(), "Active", "host", client.getName());
+		String tempHost = hostName;
+		if (client.toString().equals("127.0.0.1 (127.0.0.1)"))
+			tempHost = "local host";
+		serverBoundary.updateClientsTable(client.toString(), "Active", tempHost, client.getName());
 		serverBoundary.setStatus("Client connected to server from " + client);
 	}
 
@@ -110,7 +119,7 @@ public class ServerController extends AbstractServer {
 	 */
 	@Override
 	public void clientDisconnected(ConnectionToClient client) {
-		serverBoundary.updateClientsTable(client.toString(), "NotActive", "host", client.getName());
+		serverBoundary.updateClientsTable(client.toString(), "NotActive", "---", client.getName());
 		serverBoundary.setStatus("Client disconnected from server from " + client);
 	}
 

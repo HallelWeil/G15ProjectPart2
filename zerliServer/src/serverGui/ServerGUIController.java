@@ -130,13 +130,12 @@ public class ServerGuiController {
 	/**
 	 * Init the clients connections table
 	 */
-	@SuppressWarnings("unchecked")
 	public void initConnectionTable() {
 		// connectionsTable.
 		ObservableList<ClientsData> data = server.data;
 		// add listener to the table
 		data.addListener(new ListChangeListener<ClientsData>() {
-
+			@SuppressWarnings("rawtypes")
 			@Override
 			public void onChanged(Change c) {
 				updateConnectionTable();

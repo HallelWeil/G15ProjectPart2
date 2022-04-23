@@ -1,34 +1,35 @@
 package clientGUI;
 
-import java.sql.Date;
-import java.sql.SQLClientInfoException;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-
-import client.ClientBoundary;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import order.Order;
 
+/**
+ * The order menu gui controller, manage the order gui, can go back, save and
+ * change the color and the arrival date
+ * 
+ * @author halel
+ *
+ */
 public class OrderGuiController {
 	private ScenesData data;
 	private Order order;
+	// the local dates
 	private LocalDateTime localOrderDate;
 	private LocalDateTime localArrivalDate;
+	// private variables for the date components
+	private int day, month, year, hours, minutes;
 
 	public void setScenesData(ScenesData c) {
 		data = c;
+		initTextfiledListeners();
 	}
 
 	@FXML
@@ -88,6 +89,11 @@ public class OrderGuiController {
 	@FXML
 	private TextField orderTimeMin;
 
+	/**
+	 * go back to the main menu
+	 * 
+	 * @param event
+	 */
 	@FXML
 	void goBack(ActionEvent event) {
 		errorLabel.setText("");
@@ -96,6 +102,11 @@ public class OrderGuiController {
 		data.stage.show();
 	}
 
+	/**
+	 * save the order if all the changes fields are correct *
+	 * 
+	 * @param event
+	 */
 	@FXML
 	void saveOrder(ActionEvent event) {
 		Order newOrder = new Order();
@@ -108,21 +119,15 @@ public class OrderGuiController {
 		// new fields
 		newOrder.setColor(colorChoice.getText());
 		// getting the date
-		int day, month, year, hours, minutes;
 		try {
 			year = Integer.parseInt(arrivalDateYear.getText());
 			day = Integer.parseInt(arrivalDateDay.getText());
 			month = Integer.parseInt(arrivalDateMonth.getText());
 			hours = Integer.parseInt(arrivalTimeHour.getText());
 			minutes = Integer.parseInt(arrivalTimeMin.getText());
-		} catch (Exception e) {
-			errorLabel.setText("date must be numbers");
-			return;
-		}
-		try {
 			localArrivalDate = LocalDateTime.of(year, month, day, hours, minutes);
 		} catch (Exception e) {
-			errorLabel.setText("thats not a date" + e);
+			errorLabel.setText("thats not a date ");
 			return;
 		}
 		newOrder.setDate(localToDate(localArrivalDate));
@@ -135,6 +140,9 @@ public class OrderGuiController {
 		}
 	}
 
+	/**
+	 * Init the order text fields
+	 */
 	public void setOrder() {
 		if (data.order == null) {
 			order = new Order();
@@ -156,16 +164,29 @@ public class OrderGuiController {
 		orderData.setText("");
 		greetingCard.setText(order.getGreetingCard());
 
-		arrivalDateDay.setText(localArrivalDate.getDayOfMonth() + "");
-		arrivalDateMonth.setText(localArrivalDate.getMonthValue() + "");
-		arrivalDateYear.setText(localArrivalDate.getYear() + "");
-		arrivalTimeHour.setText(localArrivalDate.getHour() + "");
-		arrivalTimeMin.setText(localArrivalDate.getMinute() + "");
+		year = localArrivalDate.getYear();
+		month = localArrivalDate.getMonthValue();
+		day = localArrivalDate.getDayOfMonth();
+		hours = localArrivalDate.getHour();
+		minutes = localArrivalDate.getMinute();
+		arrivalDateDay.setText(day + "");
+		arrivalDateMonth.setText(month + "");
+		arrivalDateYear.setText(year + "");
+		arrivalTimeHour.setText(hours + "");
+		arrivalTimeMin.setText(minutes + "");
 
 		colorChoice.setText(order.getColor());
+
+		orderData.setText(order.getOrderData());
 		setEditable();
 	}
 
+	/**
+	 * change local time to timestamp
+	 * 
+	 * @param localDate
+	 * @return
+	 */
 	private Timestamp localToDate(LocalDateTime localDate) {
 		String timeString = localDate.toLocalDate().toString() + " " + localDate.toLocalTime().toString();
 		if (localDate.toLocalTime().getSecond() == 0)
@@ -173,13 +194,21 @@ public class OrderGuiController {
 		return java.sql.Timestamp.valueOf(timeString);
 	}
 
+	/**
+	 * change timestamp to local time
+	 * 
+	 * @param date
+	 * @return
+	 */
 	private LocalDateTime dateToLocal(Timestamp date) {
 		LocalDateTime tempDateTime = date.toLocalDateTime();
-		long timeZone = date.getTime() - localToDate(tempDateTime).getTime();
-		System.out.println("he " + timeZone);
 		return tempDateTime;
 	}
 
+	/**
+	 * set the fields to editable if can be changed and disable fields that cant be
+	 * changed
+	 */
 	private void setEditable() {
 		arrivalDateDay.setEditable(true);
 		arrivalDateMonth.setEditable(true);
@@ -198,7 +227,7 @@ public class OrderGuiController {
 		orderNumber.setEditable(false);
 		orderPrice.setEditable(false);
 		orderShop.setEditable(false);
-		// disable fileds
+		// disable fields
 		greetingCard.setDisable(true);
 		orderData.setDisable(true);
 		orderDateDay.setDisable(true);
@@ -209,5 +238,80 @@ public class OrderGuiController {
 		orderNumber.setDisable(true);
 		orderPrice.setDisable(true);
 		orderShop.setDisable(true);
+	}
+
+	/**
+	 * init listeners for the text fields
+	 */
+	private void initTextfiledListeners() {
+		arrivalDateDay.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				try {
+					int temp = Integer.parseInt(arrivalDateDay.getText());
+					LocalDateTime.of(year, month, temp, hours, minutes);
+					arrivalDateDay.setStyle("");
+				} catch (Exception e) {
+					arrivalDateDay.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+
+				}
+			}
+		});
+		// month
+		arrivalDateMonth.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				try {
+					int temp = Integer.parseInt(arrivalDateMonth.getText());
+					LocalDateTime.of(year, temp, day, hours, minutes);
+					arrivalDateMonth.setStyle("");
+				} catch (Exception e) {
+					arrivalDateMonth.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+
+				}
+			}
+		});
+		// year
+		arrivalDateYear.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				try {
+					int temp = Integer.parseInt(arrivalDateYear.getText());
+					LocalDateTime.of(temp, month, day, hours, minutes);
+					arrivalDateYear.setStyle("");
+				} catch (Exception e) {
+					arrivalDateYear.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+
+				}
+			}
+		});
+		// hour
+		arrivalTimeHour.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				try {
+					int temp = Integer.parseInt(arrivalTimeHour.getText());
+					LocalDateTime.of(year, month, day, temp, minutes);
+					arrivalTimeHour.setStyle("");
+				} catch (Exception e) {
+					arrivalTimeHour.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+
+				}
+			}
+		});
+		// minutes
+		arrivalTimeMin.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				try {
+					int temp = Integer.parseInt(arrivalTimeMin.getText());
+					LocalDateTime.of(year, month, day, hours, temp);
+					arrivalTimeMin.setStyle("");
+				} catch (Exception e) {
+					arrivalTimeMin.setStyle("-fx-text-box-border: #B22222; -fx-focus-color: #B22222;");
+
+				}
+			}
+		});
 	}
 }

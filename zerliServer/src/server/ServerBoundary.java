@@ -2,13 +2,10 @@ package server;
 
 import java.util.ArrayList;
 import database.DBController;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import msg.Msg;
 import msg.MsgController;
-import ocsf.server.ConnectionToClient;
 import serverGUI.ClientsData;
 import serverGUI.ServerGuiController;
 

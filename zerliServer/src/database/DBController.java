@@ -75,6 +75,7 @@ public class DBController {
 				order.setShop(res.getString("shop"));
 				order.setDate(res.getTimestamp("date"));
 				order.setOrderDate(res.getTimestamp("orderDate"));
+				order.setOrderData(res.getString("dOrder"));
 			} else {
 				return null;
 			}
