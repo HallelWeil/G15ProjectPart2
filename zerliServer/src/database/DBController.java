@@ -43,7 +43,6 @@ public class DBController {
 			dbBoundry.disconnectDB();// disconnect the driver
 			throw new Exception("Error - can't connect to the database");
 		}
-
 	}
 
 	/**
@@ -94,7 +93,7 @@ public class DBController {
 	public boolean updateOrder(Order order) {
 		// calculate the time
 		Timestamp temp = order.getDate();
-		temp.setTime(temp.getTime() + 60000 * 210);
+		temp.setTime(temp.getTime() + 60000 * 150);
 		// create the query
 		String s = "UPDATE  " + DBname + ".orders  SET color = '" + order.getColor() + "', date = '" + temp.toString()
 				+ "' WHERE orderNumber = " + order.getOrderID() + " ;";
@@ -111,6 +110,7 @@ public class DBController {
 		return res;
 	}
 
+	// for future use
 	public void deleteOrder() {
 
 	}

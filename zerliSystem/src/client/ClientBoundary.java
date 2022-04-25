@@ -108,13 +108,5 @@ public class ClientBoundary {
 		client.handleMessageFromClientUI(msg);
 		client.quit();
 	}
-	/*
-	 * public int CreateOrder(Order order) throws IOException { msg =
-	 * zerliClientController.CreateMsg.createSendMsg(order);
-	 * client.handleMessageFromClientUI(msg); if
-	 * (zerliClientController.CreateMsg.getType() == "get order request") return
-	 * zerliClientController.CreateMsg.getOrderNum(); else { return -1; }
-	 * 
-	 * }
-	 */
+
 }

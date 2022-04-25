@@ -24,9 +24,11 @@ public class ServerGuiController {
 	 * the server boundary, use for the server actions and methods
 	 */
 	private ServerBoundary server;
+	private boolean tableCreated;
 
 	public ServerGuiController() {
 		this.server = new ServerBoundary(this);
+		tableCreated = false;
 	}
 
 	public ServerBoundary getBoundary() {
@@ -102,10 +104,16 @@ public class ServerGuiController {
 				updateConsole("Couldn't connect server");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
+			// do nothing
 		}
 		// init the connection table(empty for now)
-		initConnectionTable();
+		if (tableCreated == false) {
+			try {
+				initConnectionTable();
+			} catch (Exception e) {
+				// do nothing
+			}
+		}
 	}
 
 	/**
@@ -131,8 +139,9 @@ public class ServerGuiController {
 	 * Init the clients connections table
 	 */
 	public void initConnectionTable() {
+
 		// connectionsTable.
-		ObservableList<ClientsData> data = server.data;
+		ObservableList<ClientsData> data = server.clientsTable;
 		// add listener to the table
 		data.addListener(new ListChangeListener<ClientsData>() {
 			@SuppressWarnings("rawtypes")
@@ -150,10 +159,11 @@ public class ServerGuiController {
 		// Adding data to the table
 		connectionsTable.setItems(data);
 		connectionsTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		tableCreated = true;
 
 	}
 
-	public void updateConnectionTable() {
+	public synchronized void updateConnectionTable() {
 		// refresh the table
 		connectionsTable.refresh();
 	}
@@ -163,7 +173,7 @@ public class ServerGuiController {
 	 * 
 	 * @param s -> the added line
 	 */
-	public void updateConsole(String s) {
+	public synchronized void updateConsole(String s) {
 		console.appendText(s + "\n");
 	}
 

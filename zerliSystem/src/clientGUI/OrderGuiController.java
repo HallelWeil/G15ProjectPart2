@@ -131,7 +131,6 @@ public class OrderGuiController {
 			return;
 		}
 		newOrder.setDate(localToDate(localArrivalDate));
-		System.out.println(newOrder.getDate().toString());
 		// save the order
 		if (data.clientBoundary.saveOrder(order, newOrder)) {
 			errorLabel.setText("Order saved successfully");

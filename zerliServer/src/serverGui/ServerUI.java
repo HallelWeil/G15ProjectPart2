@@ -21,13 +21,18 @@ public class ServerUI extends Application {
 			stage.setScene(scene);
 			stage.show();
 		} catch (Exception e) {
+			System.out.println("gui problem");
 			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void stop() {
-		controller.getBoundary().quit();
+		try {
+			controller.getBoundary().quit();
+		} catch (Exception e) {
+			// do nothing
+		}
 		System.out.println("Exit server, goodbye");
 		System.exit(1);
 	}

@@ -81,7 +81,7 @@ public class ClientUI extends Application {
 		System.exit(1);
 	}
 
-	// should have arguments "host" "server ip address"
+	// should have arguments "host" "port"
 	public static void main(String[] args) {
 		// get the ip and port from the arguments
 		host = DEFAULT_HOST;

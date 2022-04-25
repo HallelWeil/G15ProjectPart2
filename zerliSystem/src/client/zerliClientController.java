@@ -58,6 +58,7 @@ public class zerliClientController extends AbstractClient {
 			CreateMsg.msgParser(CastMsg);
 			awaitResponse = false;
 			if (CreateMsg.getType().equals("exit")) {
+				//in the future add reconnect options
 				clientBoundary.serverDisconnect();
 			}
 		}

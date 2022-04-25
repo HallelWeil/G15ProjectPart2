@@ -1,6 +1,7 @@
 package server;
 
 import java.util.ArrayList;
+
 import database.DBController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,8 +24,8 @@ public class ServerBoundary {
 	private ArrayList<String> status;
 	private DBController dbController;
 	private ServerGuiController guiController;
-	public ObservableList<ClientsData> data;
-	private int clientsCount = 0;
+	public ObservableList<ClientsData> clientsTable;
+	private int clientsCount = 1;
 
 	public ServerBoundary(ServerGuiController guiController) {
 		super();
@@ -32,7 +33,7 @@ public class ServerBoundary {
 		server = null;
 		status = new ArrayList<String>();
 		dbController = new DBController();
-		data = FXCollections.observableArrayList();
+		clientsTable = FXCollections.observableArrayList();
 	}
 
 	/**
@@ -48,12 +49,12 @@ public class ServerBoundary {
 			dbController.connectToDB(DBname, DBuser, DBpassword);
 			setStatus("Connected to database successfully");// on success
 		} catch (Exception ex) {
-			System.out.println("ERROR - Could not connect to database!");
+			// System.out.println("ERROR - Could not connect to database!");
 			setStatus(ex.getMessage());// on failure
 			return false;
 		}
-		server = new ServerController(ServerPort, dbController, this);// create the server
 		try {// try activate the server
+			server = new ServerController(ServerPort, dbController, this);// create the server
 			server.listen(); // Start listening for connections
 		} catch (Exception ex) {
 			setStatus("ERROR - Could not listen for clients!");
@@ -68,9 +69,12 @@ public class ServerBoundary {
 	 * Disconnect from the server and the database
 	 */
 	public void disconnect() {
-		// all the clients connections are not active
-		for (ClientsData temp : data) {
-			temp.status.set("NotActive");
+		// tell the clients we disconnect
+		Msg msg = MsgController.createExitMsg();
+		try {
+			server.sendToAllClients(msg);
+		} catch (Exception e) {
+			// do nothing
 		}
 		// stop the server
 		server.stopListening();
@@ -92,15 +96,15 @@ public class ServerBoundary {
 	{
 		String tempNumber = "";
 		ClientsData tempClientData = new ClientsData(tempNumber, ipAdress, status, host, name);
-		if (data.contains(tempClientData)) {
-			tempNumber = data.get(data.indexOf(tempClientData)).getNumber();
-			data.remove(tempClientData);
+		if (clientsTable.contains(tempClientData)) {
+			tempNumber = clientsTable.get(clientsTable.indexOf(tempClientData)).getNumber();
+			clientsTable.remove(tempClientData);
 		} else {
 			tempNumber += clientsCount;
 			clientsCount++;
 		}
 		tempClientData.setNumber(tempNumber);
-		data.add(tempClientData);
+		clientsTable.add(tempClientData);
 	}
 
 	/**
@@ -130,7 +134,7 @@ public class ServerBoundary {
 		try {
 			server.sendToAllClients(msg);
 		} catch (Exception e) {
-			// TODO: handle exception
+			// do nothing
 		}
 		disconnect();
 	}
